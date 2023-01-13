@@ -59,7 +59,7 @@ def add_launch_buttons(
         # Copy the notebook to `_sources` dir so it can be downloaded
         path_new_notebook.parent.mkdir(exist_ok=True, parents=True)
         copy2(path_ntbk, path_new_notebook)
-        context["ipynb_source"] = pagename + ".ipynb"
+        context["ipynb_source"] = f"{pagename}.ipynb"
 
     repo_url = _get_repo_url(config_theme)
 
@@ -203,12 +203,12 @@ def _split_repo_url(url):
 
 
 def _get_repo_url(config):
-    repo_url = config.get("repository_url")
-    if not repo_url:
+    if repo_url := config.get("repository_url"):
+        return repo_url
+    else:
         raise ValueError(
             "You must provide the key: `repository_url` to use launch buttons."
         )
-    return repo_url
 
 
 def _is_notebook(app, pagename):
@@ -216,7 +216,4 @@ def _is_notebook(app, pagename):
 
 
 def _get_branch(config_theme):
-    branch = config_theme.get("repository_branch")
-    if not branch:
-        branch = "master"
-    return branch
+    return config_theme.get("repository_branch") or "master"
