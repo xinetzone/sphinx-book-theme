@@ -26,8 +26,7 @@ MESSAGE_CATALOG_NAME = "booktheme"
 def get_html_theme_path():
     """Return list of HTML theme paths."""
     parent = Path(__file__).parent.resolve()
-    theme_path = parent / "theme" / "sphinx_book_theme"
-    return theme_path
+    return parent / "theme" / "sphinx_book_theme"
 
 
 def add_metadata_to_page(app, pagename, templatename, context, doctree):
@@ -45,9 +44,10 @@ def add_metadata_to_page(app, pagename, templatename, context, doctree):
 
     # Add a shortened page text to the context using the sections text
     if doctree:
-        description = ""
-        for section in doctree.traverse(docutil_nodes.section):
-            description += section.astext().replace("\n", " ")
+        description = "".join(
+            section.astext().replace("\n", " ")
+            for section in doctree.traverse(docutil_nodes.section)
+        )
         description = description[:160]
         context["page_description"] = description
 
@@ -95,7 +95,7 @@ def hash_assets_for_files(assets: list, theme_static: Path, context):
             if asset_sphinx_link in context[asset_type]:
                 hash = _gen_hash(asset_source_path)
                 ix = context[asset_type].index(asset_sphinx_link)
-                context[asset_type][ix] = asset_sphinx_link + "?digest=" + hash
+                context[asset_type][ix] = f"{asset_sphinx_link}?digest={hash}"
 
 
 def hash_html_assets(app, pagename, templatename, context, doctree):
@@ -115,20 +115,19 @@ def hash_html_assets(app, pagename, templatename, context, doctree):
 def update_mode_thebe_config(app):
     """Update thebe configuration with SBT-specific values"""
     theme_options = app.env.config.html_theme_options
-    if theme_options.get("launch_buttons", {}).get("thebe") is True:
-        if not hasattr(app.env.config, "thebe_config"):
-            SPHINX_LOGGER.warning(
-                (
-                    "Thebe is activated but not added to extensions list. "
-                    "Add `sphinx_thebe` to your site's extensions list."
-                )
-            )
-            return
-        # Will be empty if it doesn't exist
-        thebe_config = app.env.config.thebe_config
-    else:
+    if theme_options.get("launch_buttons", {}).get("thebe") is not True:
         return
 
+    if not hasattr(app.env.config, "thebe_config"):
+        SPHINX_LOGGER.warning(
+            (
+                "Thebe is activated but not added to extensions list. "
+                "Add `sphinx_thebe` to your site's extensions list."
+            )
+        )
+        return
+    # Will be empty if it doesn't exist
+    thebe_config = app.env.config.thebe_config
     if not theme_options.get("launch_buttons", {}).get("thebe"):
         return
 
@@ -213,7 +212,7 @@ def update_templates(app, pagename, templatename, context, doctree):
             # Add `.html` to templates with no suffix
             for ii, template in enumerate(context.get(section)):
                 if not os.path.splitext(template)[1]:
-                    context[section][ii] = template + ".html"
+                    context[section][ii] = f"{template}.html"
 
 
 def setup(app: Sphinx):

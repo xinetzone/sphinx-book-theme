@@ -146,27 +146,26 @@ def add_header_buttons(app, pagename, templatename, context, doctree):
                 }
             )
 
-        download_buttons.append(
-            {
-                "type": "link",
-                "url": f'{pathto("_sources", 1)}/{context["sourcename"]}',
-                "text": suff,
-                "tooltip": "Download source file",
-                "tooltip_placement": "left",
-                "icon": "fas fa-file",
-            }
+        download_buttons.extend(
+            (
+                {
+                    "type": "link",
+                    "url": f'{pathto("_sources", 1)}/{context["sourcename"]}',
+                    "text": suff,
+                    "tooltip": "Download source file",
+                    "tooltip_placement": "left",
+                    "icon": "fas fa-file",
+                },
+                {
+                    "type": "javascript",
+                    "javascript": "printPdf(this)",
+                    "text": ".pdf",
+                    "tooltip": "Print to PDF",
+                    "tooltip_placement": "left",
+                    "icon": "fas fa-file-pdf",
+                },
+            )
         )
-        download_buttons.append(
-            {
-                "type": "javascript",
-                "javascript": "printPdf(this)",
-                "text": ".pdf",
-                "tooltip": "Print to PDF",
-                "tooltip_placement": "left",
-                "icon": "fas fa-file-pdf",
-            }
-        )
-
         # Add the group
         header_buttons.append(
             {
